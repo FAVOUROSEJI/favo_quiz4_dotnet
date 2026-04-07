@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using quiz4_dotnet.Data;  // If you have a Data folder
+using quiz4_dotnet.Data; // If you have a Data folder
 
 var builder = WebApplication.CreateBuilder(args);
 
