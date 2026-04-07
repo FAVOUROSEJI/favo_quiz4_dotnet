@@ -1,25 +1,47 @@
 trigger:
-- main
+  branches:
+    include:
+    - main
 
 pool:
-  name: 'Default'
+  name: 'Default'  # Keep this since you're using your local agent
 
-steps:
-- task: UseDotNet@2
-  inputs:
-    packageType: 'sdk'
-    version: '8.x'
+variables:
+  buildConfiguration: 'Release'
+  dotnetVersion: '8.x'
 
-- script: dotnet restore
-  displayName: Restore
+stages:
+- stage: Build
+  jobs:
+  - job: BuildJob
+    steps:
+    - task: UseDotNet@2
+      inputs:
+        packageType: sdk
+        version: $(dotnetVersion)
 
-- script: dotnet build --configuration Release
-  displayName: Build
+    - task: DotNetCoreCLI@2
+      displayName: Restore
+      inputs:
+        command: restore
+        projects: 'quiz4_dotnet/quiz4_dotnet.csproj'
 
-- script: dotnet publish -c Release -o $(Build.ArtifactStagingDirectory)
-  displayName: Publish
+    - task: DotNetCoreCLI@2
+      displayName: Build
+      inputs:
+        command: build
+        projects: 'quiz4_dotnet/quiz4_dotnet.csproj'
+        arguments: '--configuration $(buildConfiguration)'
 
-- task: PublishBuildArtifacts@1
-  inputs:
-    pathToPublish: '$(Build.ArtifactStagingDirectory)'
-    artifactName: 'drop'
+    - task: DotNetCoreCLI@2
+      displayName: Publish
+      inputs:
+        command: publish
+        projects: 'quiz4_dotnet/quiz4_dotnet.csproj'
+        arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+        zipAfterPublish: true
+
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: drop
