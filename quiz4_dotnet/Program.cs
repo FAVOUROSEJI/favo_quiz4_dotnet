@@ -1,26 +1,36 @@
+using Microsoft.EntityFrameworkCore;
+using quiz4_dotnet.Data;  // If you have a Data folder
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Add services to the container
 builder.Services.AddControllersWithViews();
 
-var app = builder.Build();
-Console.WriteLine("Database access has already been done on April 6, 2026 by Favour");
+// Add DbContext for SQLite (from your assignment)
+builder.Services.AddDbContext<SchoolContext>(options =>
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Configure the HTTP request pipeline.
+var app = builder.Build();
+
+// Configure the HTTP request pipeline
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
+    app.UseHsts();
 }
+
+app.UseHttpsRedirection();
+app.UseStaticFiles();  // Keep this - it's the .NET 8 way
+
 app.UseRouting();
 
 app.UseAuthorization();
 
-app.MapStaticAssets();
+// REMOVE: app.MapStaticAssets();  <-- DELETE THIS LINE
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
-    .WithStaticAssets();
-
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+// REMOVE: .WithStaticAssets();  <-- DELETE THIS
 
 app.Run();
