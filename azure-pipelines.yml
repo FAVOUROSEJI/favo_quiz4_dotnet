@@ -4,7 +4,7 @@ trigger:
     - main
 
 pool:
-  name: 'Default'  # Keep this since you're using your local agent
+  name: 'Default'
 
 variables:
   buildConfiguration: 'Release'
@@ -16,32 +16,35 @@ stages:
   - job: BuildJob
     steps:
     - task: UseDotNet@2
+      displayName: 'Install .NET SDK'
       inputs:
-        packageType: sdk
-        version: $(dotnetVersion)
+        packageType: 'sdk'
+        version: '$(dotnetVersion)'
 
     - task: DotNetCoreCLI@2
-      displayName: Restore
+      displayName: 'Restore'
       inputs:
-        command: restore
+        command: 'restore'
         projects: 'quiz4_dotnet/quiz4_dotnet.csproj'
+        feedsToUse: 'select'
 
     - task: DotNetCoreCLI@2
-      displayName: Build
+      displayName: 'Build'
       inputs:
-        command: build
+        command: 'build'
         projects: 'quiz4_dotnet/quiz4_dotnet.csproj'
-        arguments: '--configuration $(buildConfiguration)'
+        arguments: '--configuration $(buildConfiguration) --no-restore'
 
     - task: DotNetCoreCLI@2
-      displayName: Publish
+      displayName: 'Publish'
       inputs:
-        command: publish
+        command: 'publish'
         projects: 'quiz4_dotnet/quiz4_dotnet.csproj'
-        arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+        arguments: '--configuration $(buildConfiguration) --no-restore --output $(Build.ArtifactStagingDirectory)'
         zipAfterPublish: true
 
     - task: PublishBuildArtifacts@1
+      displayName: 'Publish Artifacts'
       inputs:
         PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-        ArtifactName: drop
+        ArtifactName: 'drop'
