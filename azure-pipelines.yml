@@ -2,7 +2,7 @@ trigger:
 - main
 
 pool:
-  name: Default   # self-hosted agent (for marks)
+  vmImage: 'windows-latest'
 
 steps:
 - task: UseDotNet@2
